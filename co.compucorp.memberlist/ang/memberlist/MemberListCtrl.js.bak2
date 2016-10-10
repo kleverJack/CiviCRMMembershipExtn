@@ -1,0 +1,84 @@
+(function(angular, $, _) {
+
+  angular.module('memberlist').config(function($routeProvider) {
+      $routeProvider.when('/compucorp/members', {
+        controller: 'MemberlistMemberListCtrl',
+        templateUrl: '~/memberlist/MemberListCtrl.html',
+
+        // If you need to look up data when opening the page, list it out
+        // under "resolve".
+        resolve: {
+        }
+      });
+    }
+  );
+
+//  angular.module('memberlist').directive('paginate',function() {
+//  });
+
+
+  // The controller uses *injection*. This default injects a few things:
+  //   $scope -- This is the set of variables shared between JS and HTML.
+  //   crmApi, crmStatus, crmUiHelp -- These are services provided by civicrm-core.
+  //   myContact -- The current contact, defined above in config().
+  angular.module('memberlist').controller('MemberlistMemberListCtrl', function($scope, crmApi, crmStatus, crmUiHelp) {
+    // The ts() and hs() functions help load strings for this module.
+    var ts = $scope.ts = CRM.ts('memberlist');
+    var hs = $scope.hs = crmUiHelp({file: 'CRM/memberlist/MemberListCtrl'}); // See: templates/CRM/memberlist/MemberListCtrl.hlp
+
+    $scope.memberships=null;
+    $scope.filterParameters={
+	text:null,
+        onlyActive:false,
+        startDate:null,
+        endDate:null
+    };
+    $scope.isNullOrEmpty=function(value) {
+      return (null==value || ''==value.trim());
+    };
+
+    $scope.currentMember=function(member) { 
+      var today=new Date();
+      var startDate=new Date(member['start_date']);
+      var endDate=new Date(member['end_date']);
+      if(today>startDate && today<endDate) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+    $scope.memberlistFilter=function(member,index,array) {
+        if(null==member) {
+          return false;
+        }
+        var startDate=new Date(member['start_date']);
+        var endDate=new Date(member['end_date']);
+        var filterStartDate=new Date($scope.filterParameters.startDate);
+        var filterEndDate=new Date($scope.filterParameters.endDate);
+        if(!$scope.isNullOrEmpty($scope.filterParameters.text)) {
+          if(member['source'].indexOf($scope.filterParameters.text)<0
+               && member['membership_name'].indexOf($scope.filterParameters.text)<0
+               && member['relationship_name'].indexOf($scope.filterParameters.text)<0) {
+            return false;
+          }
+        }
+        if($scope.filterParameters.onlyActive) {
+          if(!$scope.currentMember(member)) {
+            return false;
+          }
+        }
+        if(!$scope.isNullOrEmpty($scope.filterParameters.startDate) && !$scope.isNullOrEmpty($scope.filterParameters.endDate)) {
+          if(startDate<filterStartDate || startDate>filterEndDate) {
+            return false;
+          } 
+        }
+        return true;
+    };
+    crmApi('Membership','get',[{'membership_type_id':21}]).then(function(members) {
+     if(members.is_error==0) {
+        $scope.memberships=members.values;
+     }
+    });
+  });
+
+})(angular, CRM.$, CRM._);

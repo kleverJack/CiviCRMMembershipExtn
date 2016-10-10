@@ -1,0 +1,10 @@
+<div class="crm-container">
+  <div crm-ui-debug="myContact"></div>
+
+  <form name="myForm" crm-ui-id-scope>
+
+    <div crm-ui-debug="testMemberlist"></div>
+    <div data-ng-repeat="memberlist"
+  </form>
+
+</div>

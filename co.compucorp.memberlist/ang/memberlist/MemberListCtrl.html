@@ -1,0 +1,34 @@
+<div class="crm-container">
+
+  <form name="myForm" crm-ui-id-scope>
+    <div crm-ui-debug="memberships"></div>
+    <div crm-ui-debug="filterParameters"></div>
+    <div class="filterPane">
+      <input type="text" data-ng-model="filterParameters.source" placeholder="Source" > <br />
+      Memberships started between <input crm-ui-datepicker="{time:false}" ng-model="filterParameters.startDate">
+      and <input crm-ui-datepicker="{time:false}" ng-model="filterParameters.endDate"><br />
+      <input type="checkbox" data-ng-model="filterParameters.onlyActive"> Only show current members<br />
+      <a class="filter button" data-ng-click="fetchMemberList()" >Filter</a>
+    </div> 
+    <table class="striped">
+     <thead> 
+     <tr>
+      <th ng-bind="'Member Contact ID'" ></th>
+      <th ng-bind="'Member Name'"></th>
+      <th ng-bind="'Membership Source'" ></th>
+      <th ng-bind="'Membership start date'" ></th>
+      <th ng-bind="'Membership end date'" ></th>
+     </tr>
+     </thead>
+     <tbody>
+     <tr ng-repeat="membership in memberships | filter:memberlistfilter">
+      <td ng-bind="membership.contact_id"></td>
+      <td ng-bind="membership.membership_name"></td>
+      <td ng-bind="membership.source"></td>
+      <td ng-bind="membership.start_date"></td>
+      <td ng-bind="membership.end_date"></td>
+     </tr>
+     </tbody>
+    </table>
+  </form>
+</div>
