@@ -13,8 +13,47 @@
     }
   );
 
-//  angular.module('memberlist').directive('paginate',function() {
-//  });
+  angular.module('memberlist').directive('ccPaginate',function() {
+    return {
+      restrict : 'A',
+      scope : {
+        ccPaginate:'=',
+        pageData:'=',
+        pageSize:'='
+      },
+      controller :['$scope', function($scope) {
+        $scope.pageSize=$scope.pageSize || 10;
+        $scope.ccPaginate=$scope.ccPaginate || [];
+        $scope.pageNumber=0;
+        $scope.turnable=function(direction){
+          if('next'==direction) {
+            return $scope.ccPaginate.length>($scope.pageNumber+1)*$scope.pageSize;
+          } else if('prev'==direction) {
+            return $scope.pageNumber>0;
+          }
+          return false;
+        };
+        $scope.turnPage= function(direction) {
+          if($scope.turnable(direction)) {
+            if('next'==direction) {
+              $scope.pageNumber++;
+            } else if('prev'==direction) {
+              $scope.pageNumber--;
+            }
+          }
+          $scope.pageData=null;
+          $scope.pageData=[];
+          for(var i=($scope.pageNumber*$scope.pageSize);i<(($scope.pageNumber+1)*$scope.pageSize)&&i<$scope.ccPaginate.length;i++) {
+            $scope.pageData.push($scope.ccPaginate[i]);
+          } 
+        };
+        $scope.$watch('ccPaginate',function(){$scope.turnPage()});
+      }],
+      template : '<span data-ng-show="turnable(\'prev\')" data-ng-click="turnPage(\'prev\')">&lt;</span>'
+               + '<span data-ng-bind="\'Page \'+(pageNumber+1)"></span>'
+               + '<span data-ng-show="turnable(\'next\')" data-ng-click="turnPage(\'next\')">&gt;</span>'
+    }
+  });
 
 
   // The controller uses *injection*. This default injects a few things:
