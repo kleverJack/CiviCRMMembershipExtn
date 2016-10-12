@@ -77,8 +77,7 @@
     };
 
     $scope.getParameters=function() {
-        var params =null;
-        params={};
+        var params={};
         if(null==$scope.filterParameters) {
           return params;
         }
