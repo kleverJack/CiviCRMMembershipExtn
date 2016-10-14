@@ -2,11 +2,13 @@
 
   <form data-ng-submit="fetchMemberList()" name="myForm" crm-ui-id-scope>
     <div crm-ui-debug="memberships"></div>
+    <div crm-ui-debug="myForm"></div>
     <div crm-ui-debug="filterParameters"></div>
     <div class="filterPane">
-      <input type="text" name="filterSource" data-ng-model="filterParameters.source" placeholder="Source" > <br />
-       Memberships started between <input crm-ui-datepicker="{time:false}" name="filterStartDate" ng-model="filterParameters.startDate">
-       and <input crm-ui-datepicker="{time:false}" name="filterEndDate" ng-model="filterParameters.endDate"><br />
+       Memberships started between <input crm-ui-datepicker="{time:false}" name="filterStartDate" data-ng-change="validDates()" ng-model="filterParameters.startDate">
+       and <input crm-ui-datepicker="{time:false}" name="filterEndDate" data-ng-change="validDates()" ng-model="filterParameters.endDate">
+       <span class="error" data-ng-bind="errorMessage"></span> <br />
+      <input type="text" name="filterSource" data-ng-model="filterParameters.source" placeholder="Source">
       <input type="checkbox" name="filterActive" data-ng-model="filterParameters.onlyActive"> Only show current members<br />
       <input type="submit" name="filterSubmit" class="filter button" value="Filter">
     </div>

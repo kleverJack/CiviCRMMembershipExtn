@@ -1,5 +1,4 @@
 (function(angular, $, _) {
-
   angular.module('memberlist').config(function($routeProvider) {
       $routeProvider.when('/compucorp/members', {
         controller: 'MemberlistMemberListCtrl',
@@ -60,11 +59,12 @@
   //   $scope -- This is the set of variables shared between JS and HTML.
   //   crmApi, crmStatus, crmUiHelp -- These are services provided by civicrm-core.
   //   myContact -- The current contact, defined above in config().
-  angular.module('memberlist').controller('MemberlistMemberListCtrl', function($scope, crmApi, crmStatus, crmUiHelp) {
+  angular.module('memberlist').controller('MemberlistMemberListCtrl', function($scope, $timeout, crmApi, crmStatus, crmUiHelp) {
     // The ts() and hs() functions help load strings for this module.
     var ts = $scope.ts = CRM.ts('memberlist');
     var hs = $scope.hs = crmUiHelp({file: 'CRM/memberlist/MemberListCtrl'}); // See: templates/CRM/memberlist/MemberListCtrl.hlp
 
+    $scope.errorMessage=null;
     $scope.memberships=null;
     $scope.filterParameters={
         onlyActive:false,
@@ -72,12 +72,37 @@
         startDate:null,
         endDate:null
     };
+    $scope.flashErrorMessage=function(message,time) {
+      $scope.errorMessage=message||'Error occurred';
+      $timeout(function(){$scope.errorMessage=null},(time||3000));
+    };
     $scope.isNullOrEmpty=function(value) {
-      return (null==value || ''==value.trim());
+      return (''==(value||'').trim());
     };
 
+    $scope.validDates=function() {
+      if($scope.isNullOrEmpty($scope.filterParameters.startDate) 
+          && $scope.isNullOrEmpty($scope.filterParameters.endDate)) {
+        return true;
+      } else if($scope.isNullOrEmpty($scope.filterParameters.startDate)) { 
+        $scope.flashErrorMessage("Select a From Date");
+        return false;
+      } else if($scope.isNullOrEmpty($scope.filterParameters.endDate)) {
+        $scope.flashErrorMessage("Select a To Date");
+        return false;
+      } else if($scope.filterParameters.startDate > $scope.filterParameters.endDate) {
+        var tmpDate=$scope.filterParameters.startDate;
+        $scope.filterParameters.startDate=$scope.filterParameters.endDate;
+        $scope.filterParameters.endDate=tmpDate;
+        $scope.flashErrorMessage("Swapped From and To");
+        return true;
+      } else {
+        return true;
+      }
+    };
     $scope.getParameters=function() {
-        var params={};
+        var params =null;
+        params={};
         if(null==$scope.filterParameters) {
           return params;
         }
@@ -93,11 +118,15 @@
         return params;
     };
     $scope.fetchMemberList=function() {
-    crmApi('Membership','get',$scope.getParameters()).then(function(members) {
-     if(members.is_error==0) {
-        $scope.memberships=members.values;
-     }
-    }); 
+      if($scope.validDates()) {
+        crmApi('Membership','get',$scope.getParameters()).then(function(members) {
+          if(members.is_error==0) {
+            $scope.memberships=members.values;
+          } else {
+            $scope.flashErrorMessage();
+          }
+        });
+      } 
     };
     $scope.fetchMemberList();
   });
