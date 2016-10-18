@@ -141,15 +141,15 @@ function memberlist_civicrm_preProcess($formName, &$form) {
  * Implements hook_civicrm_navigationMenu().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
+ */
 function memberlist_civicrm_navigationMenu(&$menu) {
   _memberlist_civix_insert_navigation_menu($menu, NULL, array(
-    'label' => ts('The Page', array('domain' => 'co.compucorp.memberlist')),
-    'name' => 'the_page',
-    'url' => 'civicrm/the-page',
+    'label' => ts('Compucorp Memberships', array('domain' => 'co.compucorp.memberlist')),
+    'name' => 'compucorp_memberships',
+    'url' => 'civicrm/a/#/compucorp/members',
     'permission' => 'access CiviReport,access CiviContribute',
     'operator' => 'OR',
     'separator' => 0,
   ));
   _memberlist_civix_navigationMenu($menu);
-} // */
+}
